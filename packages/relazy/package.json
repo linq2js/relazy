@@ -1,6 +1,6 @@
 {
   "name": "relazy",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A React library for creating lazy actions and components",
   "author": "linq2js <linqtojs@gmail.com>",
   "repository": {
