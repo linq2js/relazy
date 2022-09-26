@@ -1,0 +1,7 @@
+{
+  "tsconfig": "./packages/relazy/tsconfig.json",
+  "entryPoints": [
+    "./packages/relazy/lib/main.ts"
+  ],
+  "out": "./docs"
+}
