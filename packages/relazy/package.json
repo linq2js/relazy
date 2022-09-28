@@ -10,11 +10,9 @@
   "license": "ISC",
   "main": "dist/tsc/main.js",
   "types": "dist/tsc/main.d.ts",
-  "directories": {
-    "lib": "lib"
-  },
+  "directories": {},
   "files": [
-    "lib"
+    "dist"
   ],
   "keywords": [
     "react",
