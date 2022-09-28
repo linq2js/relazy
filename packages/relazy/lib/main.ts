@@ -80,9 +80,13 @@ export type LazyContext = PrefetchOptions & {
 
 const lazyContext = createContext<LazyContext | undefined>(undefined);
 
+const isServerSide = typeof window === "undefined";
+
 const isPromiseLike = <T>(value: any): value is Promise<T> => {
   return value && typeof value.then === "function";
 };
+
+const noLoading = () => null;
 
 const enqueue = (
   prefetch: PrefetchOptions["prefetch"],
@@ -233,7 +237,7 @@ const useIsInViewport = (ref?: RefObject<any>) => {
   const rerender = useState<any>()[1];
 
   useEffect(() => {
-    if (!ref?.current) return;
+    if (!ref?.current || isServerSide) return;
 
     const observer = new IntersectionObserver(([entry]) => {
       intersecting.value = entry.isIntersecting;
@@ -270,11 +274,12 @@ const lazyComponent: CreateLazyComponent = (
       const prefetch = customPrefetch ?? lazyContext?.prefetch;
       const elementRef = useRef<any>();
       const propsWithRef = ref ? { ...props, ref } : props;
-      const isIntersecting = useIsInViewport(
+      const isInViewPort = useIsInViewport(
         mode === "intersecting" && !action.isFetched() ? elementRef : undefined
       );
 
       useEffect(() => {
+        if (isServerSide) return;
         if (lazyContext) {
           lazyContext.enqueue(prefetch, action.prefetch);
         } else {
@@ -282,16 +287,19 @@ const lazyComponent: CreateLazyComponent = (
         }
       }, [lazyContext]);
 
-      if (!isIntersecting) {
-        return createElement("span", {
-          ref: elementRef,
-          style: {
-            visibility: "hidden",
-            width: 0,
-            height: 0,
-            display: "inline-block",
-          },
-        });
+      if (!isInViewPort) {
+        if (mode === "intersecting") {
+          return createElement("span", {
+            ref: elementRef,
+            style: {
+              visibility: "hidden",
+              width: 0,
+              height: 0,
+              display: "inline-block",
+            },
+          });
+        }
+        return null;
       }
 
       if (loading) {
@@ -309,4 +317,4 @@ const lazyComponent: CreateLazyComponent = (
   ) as any;
 };
 
-export { lazyAction, lazyComponent, LazyProvider };
+export { lazyAction, lazyComponent, LazyProvider, noLoading };
